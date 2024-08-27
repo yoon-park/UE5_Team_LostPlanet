@@ -61,7 +61,7 @@ void ATestPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(InputData->Actions[9], ETriggerEvent::Triggered, this, &ATestPlayerController::Num_Drink);
 		EnhancedInputComponent->BindAction(InputData->Actions[10], ETriggerEvent::Started, this, &ATestPlayerController::Num_BombSetStart);
 		EnhancedInputComponent->BindAction(InputData->Actions[10], ETriggerEvent::Triggered, this, &ATestPlayerController::Num_BombSetTick);
-		EnhancedInputComponent->BindAction(InputData->Actions[10], ETriggerEvent::Completed, this, &ATestPlayerController::Num_BombSetEnd);
+		EnhancedInputComponent->BindAction(InputData->Actions[10], ETriggerEvent::Completed, this, &ATestPlayerController::Num_BombSetCancel);
 		EnhancedInputComponent->BindAction(InputData->Actions[12], ETriggerEvent::Triggered, this, &ATestPlayerController::Num_ChangePosture, -1);
 		EnhancedInputComponent->BindAction(InputData->Actions[13], ETriggerEvent::Started, this, &ATestPlayerController::E_CheckItem);
 		EnhancedInputComponent->BindAction(InputData->Actions[14], ETriggerEvent::Started, this, &ATestPlayerController::P_ChangePOVController);
@@ -315,7 +315,7 @@ void ATestPlayerController::Num_BombSetTick()
 	Ch->BombSetTick();
 }
 
-void ATestPlayerController::Num_BombSetEnd()
+void ATestPlayerController::Num_BombSetCancel()
 {
 	ATestCharacter* Ch = GetPawn<ATestCharacter>();
 	if (nullptr == Ch)
@@ -323,7 +323,7 @@ void ATestPlayerController::Num_BombSetEnd()
 		return;
 	}
 
-	Ch->BombSetEnd();
+	Ch->BombSetCancel();
 }
 
 void ATestPlayerController::ChangeLowerState(EPlayerLowerState _State)

@@ -196,7 +196,7 @@ private:
 	const FVector FPVCameraRelLoc_Crouch = FVector(10.0f, 0.0f, 10.0f);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int RifleDamage = 50;
+	int RifleDamage = 10000;
 
 	UPROPERTY(meta = (AllowPrivateAccess = "true"))
 	bool IsExtraBullets = false;
@@ -250,7 +250,13 @@ private:
 	void DropItem(int _SlotIndex);
 
 	UFUNCTION()
+	void SettingItemInfo(int _Index, const FItemDataRow _ItemData);
+
+	UFUNCTION()
 	void DeleteItemInfo(int _Index);
+
+	UFUNCTION()
+	void SetCurItemIndex(int _Index);
 
 	UFUNCTION()
 	void BulletCalculation();

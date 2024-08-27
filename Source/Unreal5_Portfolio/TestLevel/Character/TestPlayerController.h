@@ -70,7 +70,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Num_BombSetTick();
 	UFUNCTION(BlueprintCallable)
-	void Num_BombSetEnd();
+	void Num_BombSetCancel();
 
 	// «œ√º
 	UFUNCTION(BlueprintCallable)

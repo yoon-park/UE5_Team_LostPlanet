@@ -360,7 +360,7 @@ void ATestCharacter::SettingItemSocket(int _InputKey)
 		SetItemSocketVisibility(false);
 
 		// 현재 아이템 알려주기
-		CurItemIndex = _InputKey;
+		SetCurItemIndex(_InputKey);
 
 		return;
 	}
@@ -377,7 +377,7 @@ void ATestCharacter::SettingItemSocket(int _InputKey)
 	SetItemSocketVisibility(true);
 
 	// 현재 아이템 알려주기
-	CurItemIndex = _InputKey;
+	SetCurItemIndex(_InputKey);
 }
 
 void ATestCharacter::SpawnItem_Implementation(FName _ItemName, FTransform _SpawnTrans)
@@ -445,23 +445,7 @@ void ATestCharacter::PickUpItem(AItemBase* _Item)
 	}
 
 	// 인벤토리에 PickUp한 아이템 정보 넣기
-	ItemSlot[ItemSlotIndex].IsItemIn = true;
-	ItemSlot[ItemSlotIndex].Name = ItemName;
-	ItemSlot[ItemSlotIndex].ReloadMaxNum = ItemData->GetReloadNum();		// 무기 장전 단위	 (Max) (-1일 경우 총기류 무기가 아님)
-	ItemSlot[ItemSlotIndex].ReloadLeftNum = ItemData->GetReloadNum();		// 무기 장전 단위	 (Left) (-1일 경우 총기류 무기가 아님)
-	ItemSlot[ItemSlotIndex].Damage = ItemData->GetDamage();					// 무기 공격력 (0일 경우 무기가 아님)
-	ItemSlot[ItemSlotIndex].MeshRes = ItemData->GetResMesh();				// 스태틱 메시 리소스
-	if (FName("TestPlayer") == UIToSelectCharacter || FName("Vanguard") == UIToSelectCharacter)
-	{
-		ItemSlot[ItemSlotIndex].RelLoc = ItemData->GetRelLoc_E();			// ItemSocket, FPVItemSocket 상대적 위치
-		ItemSlot[ItemSlotIndex].RelRot = ItemData->GetRelRot_E();			// ItemSocket, FPVItemSocket 상대적 회전
-	}
-	else if (FName("AlienSoldier") == UIToSelectCharacter || FName("Crypto") == UIToSelectCharacter)
-	{
-		ItemSlot[ItemSlotIndex].RelLoc = ItemData->GetRelLoc_A();			// ItemSocket, FPVItemSocket 상대적 위치
-		ItemSlot[ItemSlotIndex].RelRot = ItemData->GetRelRot_A();			// ItemSocket, FPVItemSocket 상대적 회전
-	}
-	ItemSlot[ItemSlotIndex].RelScale = ItemData->GetRelScale();				// ItemSocket, FPVItemSocket 상대적 크기
+	SettingItemInfo(ItemSlotIndex, *ItemData);
 
 	// 필드에 존재하는 아이템 액터 삭제
 	DestroyItem(_Item);
@@ -803,7 +787,7 @@ void ATestCharacter::AttackCheck()
 
 void ATestCharacter::Drink()
 {
-	// 음료 체크
+	// 음료 아이템 체크
 	if (false == IsItemInItemSlot(static_cast<int>(EItemType::Drink)))
 	{
 		return;
@@ -882,9 +866,11 @@ void ATestCharacter::BombSetStart()
 		return;
 	}
 
-	// 폭탄 설치 가능.
+	// 폭탄 설치 가능!
 	IsBombSetting = true;
 	AreaObject->ResetBombTime();
+
+	// 애니메이션 실행.
 	SetItemSocketVisibility(false);
 	ChangeMontage(EPlayerUpperState::Bomb);
 }
@@ -916,6 +902,7 @@ void ATestCharacter::BombSetCancel()
 	if (true == IsBombSetting)
 	{
 		IsBombSetting = false;
+
 		AAreaObject* AreaObject = Cast<AAreaObject>(GetMapItemData);
 		if (nullptr != AreaObject)
 		{
@@ -1020,10 +1007,36 @@ void ATestCharacter::GetSetSelectCharacter_Implementation(FName _CharacterType)
 	ClientMeshChange(UIToSelectCharacter);
 }
 
+void ATestCharacter::SettingItemInfo(int _Index, const FItemDataRow _ItemData)
+{
+	ItemSlot[_Index].IsItemIn = true;
+	ItemSlot[_Index].Name = *(_ItemData.GetName());
+	ItemSlot[_Index].ReloadMaxNum = _ItemData.GetReloadNum();		// 무기 장전 단위	 (Max) (-1일 경우 총기류 무기가 아님)
+	ItemSlot[_Index].ReloadLeftNum = _ItemData.GetReloadNum();		// 무기 장전 단위	 (Left) (-1일 경우 총기류 무기가 아님)
+	ItemSlot[_Index].Damage = _ItemData.GetDamage();				// 무기 공격력 (0일 경우 무기가 아님)
+	ItemSlot[_Index].MeshRes = _ItemData.GetResMesh();				// 스태틱 메시 리소스
+	if (FName("TestPlayer") == UIToSelectCharacter || FName("Vanguard") == UIToSelectCharacter)
+	{
+		ItemSlot[_Index].RelLoc = _ItemData.GetRelLoc_E();			// ItemSocket, FPVItemSocket 상대적 위치
+		ItemSlot[_Index].RelRot = _ItemData.GetRelRot_E();			// ItemSocket, FPVItemSocket 상대적 회전
+	}
+	else if (FName("AlienSoldier") == UIToSelectCharacter || FName("Crypto") == UIToSelectCharacter)
+	{
+		ItemSlot[_Index].RelLoc = _ItemData.GetRelLoc_A();			// ItemSocket, FPVItemSocket 상대적 위치
+		ItemSlot[_Index].RelRot = _ItemData.GetRelRot_A();			// ItemSocket, FPVItemSocket 상대적 회전
+	}
+	ItemSlot[_Index].RelScale = _ItemData.GetRelScale();			// ItemSocket, FPVItemSocket 상대적 크기
+}
+
 void ATestCharacter::DeleteItemInfo(int _Index)
 {
 	FPlayerItemInformation DeleteSlot;
 	ItemSlot[_Index] = DeleteSlot;
+}
+
+void ATestCharacter::SetCurItemIndex(int _Index)
+{
+	CurItemIndex = _Index;
 }
 
 void ATestCharacter::BulletCalculation()
